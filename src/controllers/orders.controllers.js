@@ -66,4 +66,48 @@ async function createOrder(req, res) {
     }
 };
 
-export { createOrder };
+async function getOrders(req, res) {
+    const { date } = req.query;
+
+    try {
+        if(date) {
+            const { rows: ordersByDate } = await connection.query(`
+                SELECT 
+                JSON_BUILD_OBJECT('id', clients.id, 'name', clients.name, 'address', clients.address, 'phone', clients.phone) AS client,
+                JSON_BUILD_OBJECT('id', cakes.id, 'name', cakes.name, 'price', cakes.price, 'description', cakes.description, 'image', cakes.image) AS cake, 
+                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice"
+                FROM orders 
+                JOIN clients ON orders."clientId" = clients.id
+                JOIN cakes ON orders."cakeId" = cakes.id
+                WHERE "createdAt" LIKE $1 || '%';
+            `, [date]);
+
+            if(!ordersByDate[0]) {
+                return res.status(404).send([]);
+            };
+
+            return res.status(200).send(ordersByDate);
+        } else {
+            const { rows: allOrders } = await connection.query(`
+                SELECT 
+                JSON_BUILD_OBJECT('id', clients.id, 'name', clients.name, 'address', clients.address, 'phone', clients.phone) AS client,
+                JSON_BUILD_OBJECT('id', cakes.id, 'name', cakes.name, 'price', cakes.price, 'description', cakes.description, 'image', cakes.image) AS cake, 
+                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice" 
+                FROM orders 
+                JOIN clients ON orders."clientId" = clients.id
+                JOIN cakes ON orders."cakeId" = cakes.id;
+            `);
+
+            if(!allOrders[0]) {
+                return res.status(404).send([]);
+            };
+
+            return res.status(200).send(allOrders);
+        }
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+};
+
+export { createOrder, getOrders };
