@@ -1,7 +1,7 @@
 import connection from '../database/database.js';
 import joi from 'joi';
 
-const customersSchema = joi.object({
+const cakeSchema = joi.object({
     name: joi.string().pattern(/^[A-zÀ-ú]/).min(2).required().empty(' '),
     price: joi.number().integer().greater(0).required(),
     image: joi.string().uri().required().empty(' '),
@@ -10,7 +10,7 @@ const customersSchema = joi.object({
 
 async function createCakes(req, res) {
     const { name, price, image, description } = req.body;
-    const validation = customersSchema.validate(req.body, {abortEarly: false});
+    const validation = cakeSchema.validate(req.body, {abortEarly: false});
 
     if(validation.error) {
         const error = validation.error.details.map(detail => detail.message);
