@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCakes } from '../controllers/cakes.controller.js';
+import { createCakes } from '../controllers/cakes.controllers.js';
 
 const router = express.Router();
 

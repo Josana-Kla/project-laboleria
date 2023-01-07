@@ -2,10 +2,10 @@ CREATE DATABASE laboleria;
 
 CREATE TABLE cakes(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
     price NUMERIC NOT NULL,
     image VARCHAR(2000) NOT NULL,
-    description TEXT NOT NULL
+    description TEXT DEFAULT ""
 );
 
 CREATE TABLE clients(
