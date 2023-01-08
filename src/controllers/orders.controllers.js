@@ -81,7 +81,7 @@ async function getOrders(req, res) {
                 SELECT 
                 JSON_BUILD_OBJECT('id', clients.id, 'name', clients.name, 'address', clients.address, 'phone', clients.phone) AS client,
                 JSON_BUILD_OBJECT('id', cakes.id, 'name', cakes.name, 'price', cakes.price, 'description', cakes.description, 'image', cakes.image) AS cake, 
-                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice"
+                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice", orders."isDelivered"
                 FROM orders 
                 JOIN clients ON orders."clientId" = clients.id
                 JOIN cakes ON orders."cakeId" = cakes.id
@@ -98,7 +98,7 @@ async function getOrders(req, res) {
                 SELECT 
                 JSON_BUILD_OBJECT('id', clients.id, 'name', clients.name, 'address', clients.address, 'phone', clients.phone) AS client,
                 JSON_BUILD_OBJECT('id', cakes.id, 'name', cakes.name, 'price', cakes.price, 'description', cakes.description, 'image', cakes.image) AS cake, 
-                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice" 
+                orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice", orders."isDelivered" 
                 FROM orders 
                 JOIN clients ON orders."clientId" = clients.id
                 JOIN cakes ON orders."cakeId" = cakes.id;
@@ -142,4 +142,28 @@ async function getOrderById(req, res) {
     }
 };
 
-export { createOrder, getOrders, getOrderById };
+async function updateOrderById(req, res) { 
+    const { id } = req.params;
+    const isDelivered = true;
+
+    try {
+        const { rows: order } = await connection.query(`
+            SELECT "isDelivered" FROM orders WHERE id = $1;
+        `, [id]);
+
+        if(order[0]) {
+            await connection.query(`
+                UPDATE orders SET "isDelivered" = $1 WHERE id = $2;
+            `, [isDelivered, id]);
+
+            return res.sendStatus(204);
+        } else {
+            return res.sendStatus(404);
+        };
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+};
+
+export { createOrder, getOrders, getOrderById, updateOrderById };
