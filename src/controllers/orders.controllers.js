@@ -116,4 +116,30 @@ async function getOrders(req, res) {
     }
 };
 
-export { createOrder, getOrders };
+async function getOrderById(req, res) {
+    const { id } = req.params;
+
+    try {
+        const { rows: orderById } = await connection.query(`
+        SELECT 
+        JSON_BUILD_OBJECT('id', clients.id, 'name', clients.name, 'address', clients.address, 'phone', clients.phone) AS client,
+        JSON_BUILD_OBJECT('id', cakes.id, 'name', cakes.name, 'price', cakes.price, 'description', cakes.description, 'image', cakes.image) AS cake, 
+        orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice"
+        FROM orders 
+        JOIN clients ON orders."clientId" = clients.id
+        JOIN cakes ON orders."cakeId" = cakes.id
+        WHERE orders.id = $1;
+        `, [id]);
+
+        if(orderById[0]) {
+            return res.status(200).send(orderById[0]);
+        } else {
+            return res.sendStatus(404);
+        };
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+};
+
+export { createOrder, getOrders, getOrderById };
