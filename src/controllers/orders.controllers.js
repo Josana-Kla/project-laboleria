@@ -1,16 +1,12 @@
 import connection from '../database/database.js';
 import joi from 'joi';
 import dayjs from 'dayjs';
-import DateExtension from '@joi/date';
-
-const joii = joi.extend(DateExtension);
 
 const orderSchema = joi.object({
     clientId:  joi.number().integer().required(),
     cakeId:  joi.number().integer().required(),
     quantity: joi.number().integer().greater(0).less(5).required()
 }); 
-
 
 async function calculateTotalPriceOrder(cakeId, quantity) {
     try {
