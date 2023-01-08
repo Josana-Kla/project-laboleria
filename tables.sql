@@ -20,7 +20,7 @@ CREATE TABLE orders(
     "clientId" INTEGER NOT NULL REFERENCES clients("id"),
     "cakeId" INTEGER NOT NULL REFERENCES cakes("id"),
     quantity INTEGER NOT NULL,
-    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "createdAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "totalPrice" NUMERIC NOT NULL DEFAULT 0,
     "isDelivered" BOOLEAN NOT NULL DEFAULT FALSE
 );

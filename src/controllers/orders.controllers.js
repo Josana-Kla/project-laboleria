@@ -8,6 +8,10 @@ const orderSchema = joi.object({
     quantity: joi.number().integer().greater(0).less(5).required()
 }); 
 
+function currentDate() {
+    return dayjs().format('YYYY-MM-DD');
+};
+
 async function calculateTotalPriceOrder(cakeId, quantity) {
     try {
         const cakePrice = await connection.query(`
@@ -29,6 +33,7 @@ async function calculateTotalPriceOrder(cakeId, quantity) {
 
 async function createOrder(req, res) {
     const { clientId, cakeId, quantity } = req.body;
+    const createdAt = currentDate();
     const validation = orderSchema.validate(req.body, {abortEarly: false});
 
     if(validation.error) {
@@ -57,8 +62,8 @@ async function createOrder(req, res) {
         const totalPrice = await calculateTotalPriceOrder(cakeId, quantity); 
 
         await connection.query(`
-            INSERT INTO orders("clientId", "cakeId", quantity, "totalPrice") VALUES($1, $2, $3, $4)
-        `, [clientId, cakeId, quantity, totalPrice]);
+            INSERT INTO orders("clientId", "cakeId", quantity, "totalPrice", "createdAt") VALUES($1, $2, $3, $4, $5)
+        `, [clientId, cakeId, quantity, totalPrice, createdAt]);
 
         return res.sendStatus(201);
     } catch (error) {
@@ -80,7 +85,7 @@ async function getOrders(req, res) {
                 FROM orders 
                 JOIN clients ON orders."clientId" = clients.id
                 JOIN cakes ON orders."cakeId" = cakes.id
-                WHERE "createdAt" LIKE $1 || '%';
+                WHERE orders."createdAt" = $1;
             `, [date]);
 
             if(!ordersByDate[0]) {
