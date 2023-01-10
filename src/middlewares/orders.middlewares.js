@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br.js'; 
 import connection from '../database/database.js';
 import { orderSchema } from '../schemas/orders.schema.js';
-
 function currentDate() {
-    return dayjs().format('YYYY-MM-DD');
+    return dayjs().locale('pt-br').format('YYYY-MM-DDTHH:mm');
 };
 
 async function calculateTotalPriceOrder(cakeId, quantity) {
@@ -17,7 +17,7 @@ async function calculateTotalPriceOrder(cakeId, quantity) {
         if(priceValue) {
             const calcTotal = priceValue * quantity;
             console.log(`O preço total do pedido é: ${priceValue} - preço do bolo x ${quantity} - quantidade = ${calcTotal}`);
-            return calcTotal;
+            return calcTotal.toFixed(2);
         };
     } catch (error) {
         console.log(error);
